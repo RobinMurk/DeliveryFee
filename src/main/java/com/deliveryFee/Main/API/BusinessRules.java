@@ -1,11 +1,10 @@
 package com.deliveryFee.Main.API;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class BusinessRules {
-    private double TALLIN_CAR_RBF = 4;
+    private double TALLINN_CAR_RBF = 4;
     private double TALLIN_SCOOTER_RBF = 3.5;
     private double TALLIN_BIKE_RBF = 3;
     private double TARTU_CAR_RBF = 3.5;
@@ -21,12 +20,12 @@ public class BusinessRules {
     private double EXTRA_FOR_LOW_TEMP = 0.5;
 
    //getters and setters
-    public double getTALLIN_CAR_RBF() {
-        return TALLIN_CAR_RBF;
+    public double getTALLINN_CAR_RBF() {
+        return TALLINN_CAR_RBF;
     }
 
-    public void setTALLIN_CAR_RBF(double TALLIN_CAR_RBF) {
-        this.TALLIN_CAR_RBF = TALLIN_CAR_RBF;
+    public void setTALLINN_CAR_RBF(double TALLINN_CAR_RBF) {
+        this.TALLINN_CAR_RBF = TALLINN_CAR_RBF;
     }
 
     public double getTALLIN_SCOOTER_RBF() {

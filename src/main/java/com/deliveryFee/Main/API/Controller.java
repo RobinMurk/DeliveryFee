@@ -1,5 +1,6 @@
 package com.deliveryFee.Main.API;
 
+import org.hibernate.sql.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,11 +14,17 @@ public class Controller {
 
     public record PostRequest(String city, String vehicle) {}
 
-    public record UpdateRuleRequest(Map<String, Double> ruleset) {}
+    public record UpdateRuleRequest(List<Rule> ruleset) {}
+
+    public record Rule(String rule, Double value){}
 
     public record UpdateRuleResponse(String status, List<String> values) {}
 
     public record PostResponse(double fee, String statement){}
+
+    public record ErrorResponse(String status, String Statement) {}
+
+    public record RuleList(List<String> rules) {}
 
     private final FeeService feeService;
 
@@ -41,18 +48,20 @@ public class Controller {
             return new ResponseEntity<>(
                     new PostResponse(e.getValue(), e.getMessage()), HttpStatus.BAD_REQUEST
             );
-        }catch (Exception e){
-            if(request.city == null ||request.vehicle == null){
-                return createPostResponse(-1, "required parameters do not exist", HttpStatus.BAD_REQUEST);
-            }
-            return createPostResponse(-1,"Internal Server error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PostMapping("/update-rule")
+    @GetMapping("/get-ruleset")
+    public ResponseEntity<RuleList> getRuleset(){
+        return new ResponseEntity<>(
+                new RuleList(feeService.getRules()), HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/update-rules")
     public ResponseEntity<UpdateRuleResponse> updateRule(@RequestBody UpdateRuleRequest request) {
         try {
-            List<String> sucessfulValues = feeService.updateRules(request);
+            List<String> sucessfulValues = feeService.updateRules(request.ruleset());
             return new ResponseEntity<>(
                     new UpdateRuleResponse("SUCCESS",sucessfulValues), HttpStatus.OK
             );
@@ -62,6 +71,14 @@ public class Controller {
             );
         }
     }
+
+    @ExceptionHandler(Exception.class)
+        public ResponseEntity<ErrorResponse> handleException(Exception e){
+            return new ResponseEntity<>(
+                    new ErrorResponse("Unknown error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+
 
     private ResponseEntity<PostResponse> createPostResponse(double value, String statement, HttpStatus status){
         return new ResponseEntity<>(
