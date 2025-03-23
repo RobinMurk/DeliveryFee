@@ -25,23 +25,39 @@ public class FeeService {
 
     }
 
-    public double calculateFee(CITIES city, VEHICLES vehicle) throws IllegalArgumentException, NoSuchElementException{
+    public double calculateFee(String cityRaw, String vehicleRaw) throws APIException{
+
         double sum = 0;
+        CITIES city;
+        VEHICLES vehicle;
+
         try {
+            //sanitize input
+            if(!isValid(cityRaw) || !isValid(vehicleRaw)){
+                throw new APIException(-1,"invalid user parameters, input must contain only alphabetic characters");
+            }
+
+            city = mapToCity(cityRaw);
+            vehicle = mapToVehicle(vehicleRaw);
             WeatherData data = getRecentWeatherData(city);
+
             System.out.println(data.toString());
+
             sum += calculateRBF(city, vehicle);
             sum += calculateATEF(vehicle, data.getAirTemperature());
             sum += calculateWSEF(vehicle, data.getWindSpeed());
             sum += calculateWPEF(vehicle, data.getPhenomenon());
             return sum;
         }catch (NoSuchElementException e){
-            System.out.println("[!] unable to retrive data for " + city.toString());
-            return -1;
+            throw new APIException(-1, "[!] unable to retrive data for " + cityRaw);
         }catch (IllegalArgumentException e){
-            System.out.println("[!] " + e.getMessage());
-            return -1;
+            throw new APIException(-1, e.getMessage());
         }
+    }
+
+    //sanitize to prevent XSS
+    private boolean isValid(String rawInput) {
+        return rawInput.matches("^[a-zA-Z]+$");
     }
 
     private double calculateWPEF(VEHICLES vehicle, String phenomenon) throws IllegalArgumentException {
@@ -63,7 +79,7 @@ public class FeeService {
 
         if(vehicle == VEHICLES.BIKE){
             if (windSpeed > 20) throw new IllegalArgumentException("Usage of selected vehicle type is forbidden");
-            if (windSpeed >= 10 && windSpeed <= 20) return 0.5;
+            if (windSpeed >= 10) return 0.5;
         }
         return 0;
     }
@@ -107,5 +123,22 @@ public class FeeService {
         };
     }
 
+    private VEHICLES mapToVehicle(String vehicle) throws IllegalArgumentException{
+        return switch (vehicle.toLowerCase()){
+            case "car" -> VEHICLES.CAR;
+            case "scooter" -> VEHICLES.SCOOTER;
+            case "bike" -> VEHICLES.BIKE;
+            default -> throw new IllegalStateException("Unexpected value: " + vehicle.toLowerCase());
+        };
+    }
+
+    private CITIES mapToCity(String city) throws IllegalArgumentException {
+        return switch (city.toLowerCase()){
+            case "tallinn" -> CITIES.TALLINN;
+            case "tartu" -> CITIES.TARTU;
+            case "pärnu" -> CITIES.PARNU;
+            default -> throw new IllegalStateException("Unexpected value: " + city.toLowerCase());
+        };
+    }
 }
 
