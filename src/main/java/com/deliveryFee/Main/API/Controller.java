@@ -17,7 +17,7 @@ public class Controller {
 
     @GetMapping("/hello")
     public String Test(){
-        return fetcher.fetchData();
+        return "hello";
     }
 
 }
