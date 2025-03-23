@@ -1,8 +1,11 @@
 package com.deliveryFee.Main.database;
 
+import com.deliveryFee.Main.API.FeeService;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
@@ -18,6 +21,7 @@ import java.util.List;
 public class WeatherDataQuerying {
 
     private static final String URL = "https://www.ilmateenistus.ee/ilma_andmed/xml/observations.php";
+    private static final Logger logger = LoggerFactory.getLogger(FeeService.class);
 
     private final RestTemplate restTemplate;
     private final WeatherDataRepository repository;
@@ -45,12 +49,12 @@ public class WeatherDataQuerying {
             List<WeatherData> data = fetchData();
             if (!data.isEmpty()) {
                 repository.saveAllAndFlush(data);
-                System.out.println("[+] " + data.getFirst().getTimestamp() + " Database updated successfully");
+                logger.info("Database updated successfully");
                 return;
             }
-            System.out.println("[!] " + LocalDateTime.now() + "Was unable to update Database");
+            logger.error("Was unable to update Database");
         }catch (Exception e){
-            System.out.println("[!] Exception at data persistance");
+            logger.error("[!] Exception at data persistance");
         }
     }
 
@@ -69,7 +73,7 @@ public class WeatherDataQuerying {
                     Instant.ofEpochSecond(observations.getTimestamp()), ZoneId.of("Europe/Tallinn"));
 
             if(observations.getData().isEmpty()){
-                System.out.println("[!] no elements in observations");
+                logger.debug("[-] no elements in observations");
                 return List.of();
             }
 
@@ -84,13 +88,13 @@ public class WeatherDataQuerying {
             return finalData;
 
         }catch (JAXBException e){
-            System.out.println("[!] " + LocalDateTime.now() + ": unable to unmarshall data");
+            logger.error("unable to unmarshall data");
         }catch (RestClientException e){
-            System.out.println("[!] " + LocalDateTime.now() + ": Unable to GET URL: " + URL + ("or could not convert response to String"));
+            logger.error("bad URL or could not convert response to String");
         }
 
         //in case of failure
-        System.out.println("[!] Failed to get Data");
+        logger.error("[!] Failed to get Data");
         return List.of();
     }
 }
