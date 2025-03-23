@@ -72,4 +72,17 @@ public class WeatherData {
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
+
+    @Override
+    public String toString() {
+        return "WeatherData{" +
+                "id=" + id +
+                ", stationName='" + stationName + '\'' +
+                ", wmoCode='" + wmoCode + '\'' +
+                ", airTemperature=" + airTemperature +
+                ", windSpeed=" + windSpeed +
+                ", phenomenon='" + phenomenon + '\'' +
+                ", timestamp=" + timestamp +
+                '}';
+    }
 }
