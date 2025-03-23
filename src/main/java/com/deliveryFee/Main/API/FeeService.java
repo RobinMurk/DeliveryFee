@@ -11,20 +11,13 @@ import java.util.NoSuchElementException;
 
 @Service
 public class FeeService {
-    private static final double TALLIN_CAR_RBF = 4;
-    private static final double TALLIN_SCOOTER_RBF = 3.5;
-    private static final double TALLIN_BIKE_RBF = 3;
-    private static final double TARTU_CAR_RBF = 3.5;
-    private static final double TARTU_SCOOTER_RBF = 3;
-    private static final double TARTU_BIKE_RBF = 2.5;
-    private static final double PARNU_CAR_RBF = 3;
-    private static final double PARNU_SCOOTER_RBF = 2.5;
-    private static final double PARNU_BIKE_RBF = 2;
 
     private final WeatherDataRepository weatherDataRepository;
+    private BusinessRules businessRules;
 
-    public FeeService(WeatherDataRepository weatherDataRepository) {
+    public FeeService(WeatherDataRepository weatherDataRepository, BusinessRules businessRules) {
         this.weatherDataRepository = weatherDataRepository;
+        this.businessRules = businessRules;
 
     }
 
@@ -46,7 +39,6 @@ public class FeeService {
             if(!isValid(cityRaw) || !isValid(vehicleRaw)){
                 throw new APIException(-1,"invalid user parameters, input must contain only alphabetic characters");
             }
-
 
             city = mapToCity(cityRaw);
             vehicle = mapToVehicle(vehicleRaw);
@@ -74,9 +66,9 @@ public class FeeService {
             String phenomenonLower = phenomenon.toLowerCase();
             //naive approach
             if (phenomenonLower.contains("snow") || phenomenonLower.contains("sleet")){
-                return 1;
+                return businessRules.getEXTRA_FOR_SNOW();
             } else if (phenomenonLower.contains("rain")) {
-                return 0.5;
+                return businessRules.getEXTRA_FOR_RAIN();
             } else if (phenomenonLower.contains("hail") || phenomenonLower.contains("glaze") || phenomenonLower.contains("thunder")) {
                 throw new IllegalArgumentException("Usage of selected vehicle type is forbidden");
             }
@@ -88,7 +80,7 @@ public class FeeService {
 
         if(vehicle == VEHICLES.BIKE){
             if (windSpeed > 20) throw new IllegalArgumentException("Usage of selected vehicle type is forbidden");
-            if (windSpeed >= 10) return 0.5;
+            if (windSpeed >= 10) return businessRules.getEXTRA_FOR_WIND();
         }
         return 0;
     }
@@ -96,9 +88,9 @@ public class FeeService {
     private double calculateATEF(VEHICLES vehicle, double temp) {
         if(vehicle == VEHICLES.SCOOTER | vehicle == VEHICLES.BIKE){
             if (temp < -10){
-                return 1;
+                return businessRules.getEXTRA_FOR_LOWER_TEMP();
             } else if (-10 <= temp && temp <= 0) {
-                return 0.5;
+                return businessRules.getEXTRA_FOR_LOW_TEMP();
             }
         }
         return 0;
@@ -107,19 +99,19 @@ public class FeeService {
     private double calculateRBF(CITIES city, VEHICLES vehicle) {
         return switch (city) {
             case TALLINN -> switch (vehicle) {
-                case CAR -> 4;
-                case SCOOTER -> 3.5;
-                case BIKE -> 3;
+                case CAR -> businessRules.getTALLIN_CAR_RBF();
+                case SCOOTER -> businessRules.getTALLIN_SCOOTER_RBF();
+                case BIKE -> businessRules.getTALLIN_BIKE_RBF();
             };
             case TARTU -> switch (vehicle) {
-                case CAR -> 3.5;
-                case SCOOTER -> 3;
-                case BIKE -> 2.5;
+                case CAR -> businessRules.getTARTU_CAR_RBF();
+                case SCOOTER -> businessRules.getTARTU_SCOOTER_RBF();
+                case BIKE -> businessRules.getTARTU_BIKE_RBF();
             };
             case PARNU -> switch (vehicle) {
-                case CAR -> 3;
-                case SCOOTER -> 2.5;
-                case BIKE -> 2;
+                case CAR -> businessRules.getPARNU_CAR_RBF();
+                case SCOOTER -> businessRules.getPARNU_SCOOTER_RBF();
+                case BIKE -> businessRules.getPARNU_BIKE_RBF();
             };
         };
     }

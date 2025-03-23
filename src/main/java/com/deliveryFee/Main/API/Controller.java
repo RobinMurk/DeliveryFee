@@ -14,8 +14,6 @@ public class Controller {
 
     public record PostResponse(double fee, String statement){}
 
-    public record ErrorResponse(String status, String statement){}
-
     private final FeeService feeService;
 
     public Controller(FeeService feeService) {
@@ -50,4 +48,6 @@ public class Controller {
                 );
             }
     }
+
+
 }
