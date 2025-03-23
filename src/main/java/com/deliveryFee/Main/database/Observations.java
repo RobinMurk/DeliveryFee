@@ -1,4 +1,5 @@
 package com.deliveryFee.Main.database;
+import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -21,7 +22,11 @@ public class Observations{
         return data;
     }
 
-    @XmlElement(name="timestamp")
+    @XmlAttribute(name="timestamp")
+    public void setTimestamp(long timestamp){
+        this.timestamp = timestamp;
+    }
+
     public long getTimestamp(){
         return timestamp;
     }

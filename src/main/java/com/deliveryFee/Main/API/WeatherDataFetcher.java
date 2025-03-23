@@ -24,15 +24,21 @@ public class WeatherDataFetcher {
 
     private final RestTemplate restTemplate;
     private final WeatherDataRepository repository;
+    private final int idxTallin;
+    private final int idxTartu;
+    private final int idxParnu;
 
     public WeatherDataFetcher(WeatherDataRepository repository, RestTemplate restTemplate) {
         this.repository = repository;
         this.restTemplate = restTemplate;
+        this.idxTallin = 1;
+        this.idxTartu = 9;
+        this.idxParnu = 28;
     }
 
 
 
-    @Scheduled(cron = "* * * * * *")
+    @Scheduled(cron = "1 * * * * *")
     public void persistData(){
         try {
             List<WeatherData> data = fetchData();
@@ -64,14 +70,19 @@ public class WeatherDataFetcher {
                 System.out.println("[!] no elements in observations");
                 return List.of();
             }
-            for (WeatherData data : observations.getData()){
-                data.setTimestamp(timestamp);
-            }
 
-            return observations.getData();
+            List<WeatherData> finalData = List.of(
+                    observations.getData().get(idxTallin),
+                    observations.getData().get(idxTartu),
+                    observations.getData().get(idxParnu)
+            );
+
+            finalData.forEach(el -> el.setTimestamp(timestamp));
+
+            return finalData;
 
         }catch (JAXBException e){
-            System.out.println("[!] " + LocalDateTime.now() + ": unable to unmarshall data" + e.getStackTrace());
+            System.out.println("[!] " + LocalDateTime.now() + ": unable to unmarshall data");
         }catch (RestClientException e){
             System.out.println("[!] " + LocalDateTime.now() + ": Unable to GET URL: " + URL + ("or could not convert response to String"));
         }
