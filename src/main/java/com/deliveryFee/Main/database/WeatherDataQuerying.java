@@ -1,8 +1,5 @@
-package com.deliveryFee.Main.API;
+package com.deliveryFee.Main.database;
 
-import com.deliveryFee.Main.database.Observations;
-import com.deliveryFee.Main.database.WeatherData;
-import com.deliveryFee.Main.database.WeatherDataRepository;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
@@ -18,17 +15,19 @@ import java.util.List;
 
 
 @Component
-public class WeatherDataFetcher {
+public class WeatherDataQuerying {
 
     private static final String URL = "https://www.ilmateenistus.ee/ilma_andmed/xml/observations.php";
 
     private final RestTemplate restTemplate;
     private final WeatherDataRepository repository;
+
+    //order in data does not change on update
     private final int idxTallin;
     private final int idxTartu;
     private final int idxParnu;
 
-    public WeatherDataFetcher(WeatherDataRepository repository, RestTemplate restTemplate) {
+    public WeatherDataQuerying(WeatherDataRepository repository, RestTemplate restTemplate) {
         this.repository = repository;
         this.restTemplate = restTemplate;
         this.idxTallin = 1;
@@ -37,7 +36,9 @@ public class WeatherDataFetcher {
     }
 
 
-
+    /**
+     * Fetches and persists the data to the DB
+     */
     @Scheduled(cron = "1 * * * * *")
     public void persistData(){
         try {
@@ -52,6 +53,7 @@ public class WeatherDataFetcher {
             System.out.println("[!] Exception at data persistance");
         }
     }
+
 
     private List<WeatherData> fetchData() {
         try {

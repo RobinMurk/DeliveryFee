@@ -22,8 +22,8 @@ public class WeatherData {
     private String phenomenon;
     private LocalDateTime timestamp;
 
-    // Getters and Setters
 
+    // Getters and Setters
 
     public Long getId() {
         return id;

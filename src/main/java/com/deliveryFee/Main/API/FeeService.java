@@ -25,6 +25,13 @@ public class FeeService {
 
     }
 
+    /**
+     * Calculates the fee based on the given city and vehicle type. Latest weather data is used.
+     * @param cityRaw  String, must by alphabetic only, no whitespaces
+     * @param vehicleRaw  String, must be alphabetic only, no whitespaces
+     * @return  double, fee ammount for the given parameters based on latest weather data
+     * @throws APIException
+     */
     public double calculateFee(String cityRaw, String vehicleRaw) throws APIException{
 
         double sum = 0;
@@ -36,6 +43,7 @@ public class FeeService {
             if(!isValid(cityRaw) || !isValid(vehicleRaw)){
                 throw new APIException(-1,"invalid user parameters, input must contain only alphabetic characters");
             }
+
 
             city = mapToCity(cityRaw);
             vehicle = mapToVehicle(vehicleRaw);
@@ -49,13 +57,13 @@ public class FeeService {
             sum += calculateWPEF(vehicle, data.getPhenomenon());
             return sum;
         }catch (NoSuchElementException e){
-            throw new APIException(-1, "[!] unable to retrive data for " + cityRaw);
+            throw new APIException(-1, "[!] unable to retrieve data for " + cityRaw);
         }catch (IllegalArgumentException e){
             throw new APIException(-1, e.getMessage());
         }
     }
 
-    //sanitize to prevent XSS
+    //sanitize input
     private boolean isValid(String rawInput) {
         return rawInput.matches("^[a-zA-Z]+$");
     }
