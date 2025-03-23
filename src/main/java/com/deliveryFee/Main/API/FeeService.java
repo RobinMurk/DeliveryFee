@@ -2,11 +2,11 @@ package com.deliveryFee.Main.API;
 
 import com.deliveryFee.Main.database.WeatherData;
 import com.deliveryFee.Main.database.WeatherDataRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
-
-
+import java.util.*;
 
 
 @Service
@@ -14,6 +14,7 @@ public class FeeService {
 
     private final WeatherDataRepository weatherDataRepository;
     private BusinessRules businessRules;
+    private static final Logger logger = LoggerFactory.getLogger(FeeService.class);
 
     public FeeService(WeatherDataRepository weatherDataRepository, BusinessRules businessRules) {
         this.weatherDataRepository = weatherDataRepository;
@@ -140,6 +141,82 @@ public class FeeService {
             case "pärnu" -> CITIES.PARNU;
             default -> throw new IllegalArgumentException("Unexpected value: " + city);
         };
+    }
+
+    public List<String> updateRules(Controller.UpdateRuleRequest request) throws APIException {
+        List<Runnable> callbacks = new ArrayList<>();
+        //return list of rules that are able to be changed
+        List<String> keys = new ArrayList<>();
+
+            request.ruleset().forEach((key, value) -> {
+                switch (key) {
+                    case "TALLIN_CAR_RBF":
+                        callbacks.add(() -> businessRules.setTALLIN_CAR_RBF(value));
+                        keys.add(key);
+                        break;
+                    case "TALLIN_SCOOTER_RBF":
+                        callbacks.add(() -> businessRules.setTALLIN_SCOOTER_RBF(value));
+                        keys.add(key);
+                        break;
+                    case "TALLIN_BIKE_RBF":
+                        callbacks.add(() -> businessRules.setTALLIN_BIKE_RBF(value));
+                        keys.add(key);
+                        break;
+                    case "TARTU_CAR_RBF":
+                        callbacks.add(() -> businessRules.setTARTU_CAR_RBF(value));
+                        keys.add(key);
+                        break;
+                    case "TARTU_SCOOTER_RBF":
+                        callbacks.add(() -> businessRules.setTARTU_SCOOTER_RBF(value));
+                        keys.add(key);
+                        break;
+                    case "TARTU_BIKE_RBF":
+                        callbacks.add(() -> businessRules.setTARTU_BIKE_RBF(value));
+                        keys.add(key);
+                        break;
+                    case "PARNU_CAR_RBF":
+                        callbacks.add(() -> businessRules.setPARNU_CAR_RBF(value));
+                        keys.add(key);
+                        break;
+                    case "PARNU_SCOOTER_RBF":
+                        callbacks.add(() -> businessRules.setPARNU_SCOOTER_RBF(value));
+                        keys.add(key);
+                        break;
+                    case "PARNU_BIKE_RBF":
+                        callbacks.add(() -> businessRules.setPARNU_BIKE_RBF(value));
+                        keys.add(key);
+                        break;
+                    case "EXTRA_FOR_RAIN":
+                        callbacks.add(() -> businessRules.setEXTRA_FOR_RAIN(value));
+                        keys.add(key);
+                        break;
+                    case "EXTRA_FOR_SNOW":
+                        callbacks.add(() -> businessRules.setEXTRA_FOR_SNOW(value));
+                        keys.add(key);
+                        break;
+                    case "EXTRA_FOR_WIND":
+                        callbacks.add(() -> businessRules.setEXTRA_FOR_WIND(value));
+                        keys.add(key);
+                        break;
+                    case "EXTRA_FOR_LOWER_TEMP":
+                        callbacks.add(() -> businessRules.setEXTRA_FOR_LOWER_TEMP(value));
+                        keys.add(key);
+                        break;
+                    case "EXTRA_FOR_LOW_TEMP":
+                        callbacks.add(() -> businessRules.setEXTRA_FOR_LOW_TEMP(value));
+                        keys.add(key);
+                        break;
+                    default:
+                        break;
+                }
+            });
+        try {
+            callbacks.forEach(Runnable::run);
+        }catch (Exception e){
+            logger.error("[!] Some ruleSet changes where not applied");
+            throw new APIException(-1, "Some methods where not updated");
+        }
+        return keys;
     }
 }
 
