@@ -136,7 +136,7 @@ public class FeeService {
             case "car" -> VEHICLES.CAR;
             case "scooter" -> VEHICLES.SCOOTER;
             case "bike" -> VEHICLES.BIKE;
-            default -> throw new IllegalStateException("Unexpected value: " + vehicle.toLowerCase());
+            default -> throw new IllegalArgumentException("Unexpected value: " + vehicle.toLowerCase());
         };
     }
 
@@ -145,7 +145,7 @@ public class FeeService {
             case "tallinn" -> CITIES.TALLINN;
             case "tartu" -> CITIES.TARTU;
             case "pärnu" -> CITIES.PARNU;
-            default -> throw new IllegalStateException("Unexpected value: " + city.toLowerCase());
+            default -> throw new IllegalArgumentException("Unexpected value: " + city);
         };
     }
 }
