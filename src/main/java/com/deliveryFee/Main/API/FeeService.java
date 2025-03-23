@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 
+
+
+
 @Service
 public class FeeService {
     private static final double TALLIN_CAR_RBF = 4;
@@ -49,8 +52,6 @@ public class FeeService {
             vehicle = mapToVehicle(vehicleRaw);
             WeatherData data = getRecentWeatherData(city);
 
-            System.out.println(data.toString());
-
             sum += calculateRBF(city, vehicle);
             sum += calculateATEF(vehicle, data.getAirTemperature());
             sum += calculateWSEF(vehicle, data.getWindSpeed());
@@ -65,7 +66,7 @@ public class FeeService {
 
     //sanitize input
     private boolean isValid(String rawInput) {
-        return rawInput.matches("^[a-zA-Z]+$");
+        return rawInput.matches("^[a-zA-ZäöüõÄÖÜÕ]+$");
     }
 
     private double calculateWPEF(VEHICLES vehicle, String phenomenon) throws IllegalArgumentException {
