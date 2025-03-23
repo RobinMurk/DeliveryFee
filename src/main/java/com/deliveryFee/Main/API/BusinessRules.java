@@ -20,11 +20,6 @@ public class BusinessRules {
     private double EXTRA_FOR_LOWER_TEMP = 1;
     private double EXTRA_FOR_LOW_TEMP = 0.5;
 
-   @Bean
-   public BusinessRules businessRules(){
-       return new BusinessRules();
-   }
-
    //getters and setters
     public double getTALLIN_CAR_RBF() {
         return TALLIN_CAR_RBF;
