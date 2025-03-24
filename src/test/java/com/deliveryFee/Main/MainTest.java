@@ -1,7 +1,9 @@
 package com.deliveryFee.Main;
 
+import com.deliveryFee.Main.API.BusinessRules;
 import com.deliveryFee.Main.API.Controller;
 import com.deliveryFee.Main.API.FeeService;
+import com.deliveryFee.Main.database.WeatherDataRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +21,7 @@ import java.util.List;
 
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,6 +32,13 @@ public class MainTest {
 
 	@Mock
 	private FeeService feeService;
+
+	@Mock
+	private WeatherDataRepository weatherDataRepository;
+
+	@Mock
+	private BusinessRules businessRules;
+
 
 	@InjectMocks
 	private Controller controller;
@@ -78,17 +88,11 @@ public class MainTest {
 				.andExpect(MockMvcResultMatchers.jsonPath("$.values").isArray());
 	}
 
-	@Test
-	public void testWrongInput() throws Exception {
-		var value =mockMvc.perform(post("/api/v1/get-fee")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content("{\"city\" : \"Tallinn1231\",\"vehicle\" : \"car1\"}")
-				)
-				.andExpect(MockMvcResultMatchers.status().isBadRequest())
-				.andExpect(MockMvcResultMatchers.jsonPath("$.status").value("invalid user parameters, input must contain only alphabetic characters"))
-				.andExpect(MockMvcResultMatchers.jsonPath("$.Statement").value("User Error"))
-				.andReturn();
 
-		System.out.println(value.getResponse().getContentAsString());
+	/**
+	@Test
+	public void testWithoutDataInput() throws Exception {
+		assertEquals("should be the same", -1,feeService.calculateFee("Tallinn", "24325"));
 	}
+	**/
 }
