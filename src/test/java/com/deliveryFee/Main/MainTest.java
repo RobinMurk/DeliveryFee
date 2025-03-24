@@ -77,4 +77,18 @@ public class MainTest {
 				.andExpect(MockMvcResultMatchers.jsonPath("$.status").value("SUCCESS"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.values").isArray());
 	}
+
+	@Test
+	public void testWrongInput() throws Exception {
+		var value =mockMvc.perform(post("/api/v1/get-fee")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"city\" : \"Tallinn1231\",\"vehicle\" : \"car1\"}")
+				)
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.status").value("invalid user parameters, input must contain only alphabetic characters"))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.Statement").value("User Error"))
+				.andReturn();
+
+		System.out.println(value.getResponse().getContentAsString());
+	}
 }
