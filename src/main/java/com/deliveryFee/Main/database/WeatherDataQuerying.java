@@ -43,7 +43,7 @@ public class WeatherDataQuerying {
     /**
      * Fetches and persists the data to the DB
      */
-    @Scheduled(cron = "1 * * * * *")
+    @Scheduled(cron = "0 15 * * * *")
     public void persistData(){
         try {
             List<WeatherData> data = fetchData();
